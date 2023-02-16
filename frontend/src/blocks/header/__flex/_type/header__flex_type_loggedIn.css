@@ -1,0 +1,5 @@
+@media screen and (max-width: 650px) {
+    .header__flex_type_loggedIn {
+        display: none;
+    }
+}

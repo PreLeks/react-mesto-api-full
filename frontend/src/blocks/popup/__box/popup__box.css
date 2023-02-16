@@ -1,0 +1,11 @@
+.popup__box{
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+}
+
+@media screen and (max-width: 650px) {
+    .popup__box {
+        max-width: 282px;
+    }
+}

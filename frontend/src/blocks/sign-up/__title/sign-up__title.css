@@ -1,0 +1,12 @@
+.sign-up__title {
+    margin: 0;
+    padding-top: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+
+@media screen and (max-width: 650px) {
+    .sign-up__title {
+        padding-top: 20px;
+    }
+}

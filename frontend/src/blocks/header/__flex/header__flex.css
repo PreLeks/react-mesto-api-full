@@ -1,0 +1,11 @@
+.header__flex {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+@media screen and (max-width: 890px) {
+    .header__flex {
+        margin-right: 30px;
+    }
+}

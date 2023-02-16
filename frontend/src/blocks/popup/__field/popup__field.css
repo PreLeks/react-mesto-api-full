@@ -1,0 +1,16 @@
+.popup__field {
+    padding-bottom: 30px;
+    width: 100%;
+    display: inline-block;
+    position: relative;
+}
+
+.popup__field:last-of-type {
+    padding-bottom: 42px;
+}
+
+@media screen and (max-width: 650px) {
+    .popup__field:last-of-type {
+        padding-bottom: 39px;     
+    }
+}

@@ -1,0 +1,15 @@
+.footer {
+    padding: 7.613636364% 0 6.818181818%;
+}
+
+@media screen and (max-width: 890px) {
+    .footer {
+        margin-left: 19px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .footer {
+        padding: 48px 0 36px;
+    }
+} 

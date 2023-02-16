@@ -1,0 +1,25 @@
+.profile__editBtn {
+    width: 22px;
+    height: 22px;
+    align-self: flex-end;
+    margin-bottom: 9px;
+    border: 1px solid #fff;
+    background-color: #000;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity .3s ease;
+}
+
+.profile__editBtn:hover {
+    opacity: .6;
+}
+
+@media screen and (max-width: 650px) {
+    .profile__editBtn {
+        width: 16px;
+        height: 16px;
+        margin-bottom: 6px;
+    }
+}

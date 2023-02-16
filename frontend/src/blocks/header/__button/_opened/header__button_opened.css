@@ -1,0 +1,17 @@
+.header__button_opened .header__line:first-of-type {
+    width: 28px;
+    transform: rotate(405deg) translate(9px, 10.5px);
+    transition: transform, 1s;
+}
+
+.header__button_opened .header__line:nth-of-type(2) {
+    transform: translate(-50px, 0);
+    transition: transform, .5s;
+    opacity: 0;
+}
+
+.header__button_opened .header__line:last-of-type {
+    width: 28px;
+    transform: rotate(-405deg) translate(4px, -6px);
+    transition: transform, 1s;
+}

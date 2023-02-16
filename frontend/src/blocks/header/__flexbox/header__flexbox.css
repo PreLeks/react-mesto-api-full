@@ -1,0 +1,10 @@
+.header__flexbox {
+    display: flex;
+    justify-content: space-between;
+}
+
+@media screen and (max-width: 650px) {
+    .header__flexbox {
+        padding-top: 28px;
+    }
+}

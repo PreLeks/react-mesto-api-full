@@ -1,0 +1,14 @@
+.popup__button_type_save-upload {
+    background: #000;
+    color: #fff;
+}
+
+@media screen and (max-width: 1280px) {
+    .popup__button_type_save-upload {
+        font-size: calc((100vw - 320px) / (1280 - 320) * (18 - 14) + 14px);
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .popup__button_type_save-upload {}
+}

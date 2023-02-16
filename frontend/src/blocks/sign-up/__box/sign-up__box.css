@@ -1,0 +1,12 @@
+.sign-up__box {
+    width: 358px;
+    margin: 0 auto;
+    padding-top: 60px;
+}
+
+@media screen and (max-width: 650px) {
+    .sign-up__box {
+        width: 220px;
+        padding-top: 40px;
+    }
+}
