@@ -10,11 +10,13 @@ const {
   MSG_EMAIL_REGISTERED,
 } = require('../utils/constants');
 
+const { NODE_ENV, JWT_SECRET_KEY } = process.env;
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
   Users.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'jwt-token', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET_KEY : 'dev-secret', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
