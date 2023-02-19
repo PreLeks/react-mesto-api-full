@@ -35,6 +35,7 @@ class Auth {
     getUserData(token) {
         return fetch(`${this.baseUrl}/users/me`, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
