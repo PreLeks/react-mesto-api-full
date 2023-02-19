@@ -99,9 +99,13 @@ function App({ history }) {
   };
 
   function handleSignOut() {
-    Token.removeToken();
-    setLoggedIn(false);
-    setUserEmail('');
+    auth
+      .signOut()
+      .then(() => {
+        Token.removeToken();
+        setLoggedIn(false);
+        setUserEmail('');
+      })
   };
 
   useEffect(() => {

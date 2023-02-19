@@ -43,6 +43,16 @@ class Auth {
         })
             .then(this._getResponseData);
     }
+
+    signOut() {
+        return fetch(`${this.baseUrl}/signout`, {
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then(this._getResponseData);
+    }
 }
 
 const auth = new Auth('https://api.mestopreleks.nomoredomains.work');
