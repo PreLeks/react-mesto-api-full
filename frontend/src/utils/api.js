@@ -82,6 +82,7 @@ class Api {
 const api = new Api({
   baseUrl: 'https://api.mestopreleks.nomoredomains.work',
   headers: {
+    authorization: localStorage.getItem('token'),
     'Content-Type': 'application/json'
   }
 });
