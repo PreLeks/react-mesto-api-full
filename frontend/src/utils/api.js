@@ -80,9 +80,8 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-49',
+  baseUrl: 'https://api.mestopreleks.nomoredomains.work',
   headers: {
-    authorization: 'f8dcca4e-e7c2-43b6-8e6c-2fa021994509',
     'Content-Type': 'application/json'
   }
 });
