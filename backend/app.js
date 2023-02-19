@@ -12,7 +12,7 @@ const err = require('./middlewares/error');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: 'mestopreleks.nomoredomains.work' }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
