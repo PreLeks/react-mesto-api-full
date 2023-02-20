@@ -40,9 +40,9 @@ function App({ history }) {
   function getUserEmail(token) {
     auth
       .getUserData(token)
-      .then(({ data }) => {
-        if (data) {
-          setUserEmail(data.email);
+      .then(({ email }) => {
+        if (email) {
+          setUserEmail(email);
           setLoggedIn(true);
           history.push('/')
         } else {
@@ -55,28 +55,28 @@ function App({ history }) {
       })
   };
 
-  // useEffect(() => {
-  //  const token = Token.getToken();
-  //  if (token) {
-  //    getUserEmail(token);
-  //  }
-  // }, [history]);
+  useEffect(() => {
+    const token = Token.getToken();
+    if (token) {
+      getUserEmail(token);
+    }
+  }, [history]);
 
-  function handleRegistration(formData) {
+  function handleRegistration({ email, password }) {
     auth
-      .register(formData)
+      .register({ email, password })
       .then((res) => {
         if (res.data) {
           setIsInfoTooltipPopupOpen(true);
           setImageForInfoTooltip(AcceptRegist);
           setTextForInfoTooltip("Вы успешно зарегистрировались!");
-          history.push('/sign-in')
+          handleSignIn({ email, password });
         }
       })
-      .catch(() => {
+      .catch((err) => {
         setIsInfoTooltipPopupOpen(true);
         setImageForInfoTooltip(RejectRegist);
-        setTextForInfoTooltip("Что-то пошло не так! Попробуйте ещё раз.");
+        setTextForInfoTooltip(err.message);
       })
   };
 
@@ -91,10 +91,10 @@ function App({ history }) {
           history.push('/');
         }
       })
-      .catch(() => {
+      .catch((err) => {
         setIsInfoTooltipPopupOpen(true);
         setImageForInfoTooltip(RejectRegist);
-        setTextForInfoTooltip("Неверный Email или пароль");
+        setTextForInfoTooltip(err.message);
       })
   };
 
@@ -116,7 +116,7 @@ function App({ history }) {
       Promise.all([api.getUserInfo(), api.getInitialCards()])
         .then(([userInfo, initialCards]) => {
           setCurrentUser(userInfo);
-          setCards(initialCards);
+          setCards(initialCards.reverse());
         })
         .catch((err) => {
           console.log(err);
@@ -165,10 +165,8 @@ function App({ history }) {
   };
 
   const handleUpdateUser = (userData) => {
-    console.dir(userData)
     api.patchUserInfo(userData)
       .then((res) => {
-        console.dir(res);
         setCurrentUser(res);
         closeAllPopups();
       })
@@ -185,7 +183,7 @@ function App({ history }) {
   };
 
   const handleCardLike = (card) => {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     if (isLiked) {
       api.deleteLike(card)
         .then((newCard) => setCards((state) => state.map(c => c._id === card._id ? newCard : c)))

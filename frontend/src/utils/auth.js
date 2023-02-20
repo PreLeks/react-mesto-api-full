@@ -7,7 +7,10 @@ class Auth {
         if (res.ok) {
             return res.json();
         }
-        return Promise.reject(`Ошибка: ${res.status}`);
+        return res.json().then((err) => {
+            err.statusCode = res.status;
+            return Promise.reject(err);
+        })
     }
 
     register({ email, password }) {
