@@ -40,9 +40,9 @@ function App({ history }) {
   function getUserEmail(token) {
     auth
       .getUserData(token)
-      .then(({ email }) => {
-        if (email) {
-          setUserEmail(email);
+      .then((data) => {
+        if (data) {
+          setUserEmail(data.email);
           setLoggedIn(true);
           history.push('/')
         } else {
@@ -51,7 +51,7 @@ function App({ history }) {
         }
       })
       .catch((err) => {
-        console.error(err);
+        console.log(err);
       })
   };
 

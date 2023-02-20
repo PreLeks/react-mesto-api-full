@@ -1,133 +1,137 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Users = require('../models/user');
-const NotFoundErr = require('../errors/NotFoundErr');
-const IncorrectData = require('../errors/IncorrectData');
-const AlreadyRegEmailErr = require('../errors/AlreadyRegEmailErr');
-const {
-  MSG_INCORRECT_DATA,
-  MSG_NOT_FOUND_USER,
-  MSG_EMAIL_REGISTERED,
-} = require('../utils/constants');
+const User = require('../models/user');
+const ConflictError = require('../errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
 
-const { NODE_ENV, JWT_SECRET_KEY } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
-const login = (req, res, next) => {
+// Создание нового пользователя
+module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
-  Users.findUserByCredentials(email, password)
+
+  if (!email || !password) {
+    next(new BadRequestError('Неправильный логин или пароль.'));
+  }
+
+  return User.findOne({ email }).then((user) => {
+    if (user) {
+      next(new ConflictError(`Пользователь с ${email} уже существует.`));
+    }
+
+    return bcrypt.hash(password, 10);
+  })
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+    }))
+    .then((user) => res.status(200).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
+      }
+      return next(err);
+    });
+};
+
+// Аутентификация пользователя
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET_KEY : 'dev-secret', { expiresIn: '7d' });
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      });
-      res.send({ token });
+      // проверим существует ли такой email или пароль
+      if (!user || !password) {
+        return next(new BadRequestError('Неверный email или пароль.'));
+      }
+
+      // создадим токен
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        {
+          expiresIn: '7d',
+        },
+      );
+
+      // вернём токен
+      return res.send({ token });
     })
     .catch(next);
 };
 
-const getUsers = (req, res, next) => {
-  Users.find({})
-    .then((user) => res.send(user))
+// возвращает информацию о текущем пользователе
+module.exports.getCurrentUser = (req, res, next) => {
+  const { _id } = req.user;
+  User.findById(_id).then((user) => {
+    // проверяем, есть ли пользователь с таким id
+    if (!user) {
+      return next(new NotFoundError('Пользователь не найден.'));
+    }
+
+    // возвращаем пользователя, если он есть
+    return res.status(200).send(user);
+  }).catch(next);
+};
+
+// Получение пользователей
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.status(200).send(users))
     .catch(next);
 };
 
-const getUserById = (req, res, next) => {
-  Users.findById(req.params.id).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else {
-        next(err);
+// Получение пользователя по его id
+module.exports.getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Пользователь не найден'));
       }
-    });
+      return res.status(200).send(user);
+    })
+    .catch(next);
 };
 
-const getUserMe = (req, res, next) => {
-  const userId = req.user._id;
-  Users.findById(userId).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => Users.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => res.status(201).send({
-      name, about, avatar, email, _id: user._id,
-    }))
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new AlreadyRegEmailErr(MSG_EMAIL_REGISTERED));
-      } else if (err.name === 'ValidationError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const updateUser = (req, res, next) => {
+// Обновление информации о пользователе
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
-  console.dir(req.body);
-  Users.findByIdAndUpdate(
+  User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    {
-      new: true,
-      runValidators: true,
-      upsert: false,
-    },
-  ).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
-    .then((user) => {
-      console.dir(user);
-      res.send(user);
-    })
+    { new: true, runValidators: true },
+  )
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
+        next(new BadRequestError('Неверный тип данных.'));
       }
       return next(err);
     });
 };
 
-const updateAvatarUser = (req, res, next) => {
+// Обновление аватара пользователя
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  Users.findByIdAndUpdate(
+  User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
-  ).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
-    .then((user) => res.send(user))
+    { new: true, runValidators: true },
+  )
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectData(MSG_INCORRECT_DATA));
+        next(new BadRequestError('Неверная ссылка'));
       }
       return next(err);
     });
-};
-
-module.exports = {
-  login,
-  getUsers,
-  getUserById,
-  getUserMe,
-  createUser,
-  updateUser,
-  updateAvatarUser,
 };

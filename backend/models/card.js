@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { validationLink } = require('../utils/constants');
+const isURL = require('validator/lib/isURL');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,8 +12,8 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: validationLink,
-      message: 'Ссылка не является валидной',
+      validator: (v) => isURL(v),
+      message: 'Неправильный формат URL',
     },
   },
   owner: {
@@ -21,11 +21,10 @@ const cardSchema = new mongoose.Schema({
     ref: 'user',
     required: true,
   },
-  likes: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'user',
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
     default: [],
-  },
+  }],
   createdAt: {
     type: Date,
     default: Date.now,
