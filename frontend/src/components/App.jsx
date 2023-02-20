@@ -55,12 +55,12 @@ function App({ history }) {
       })
   };
 
-  useEffect(() => {
-    const token = Token.getToken();
-    if (token) {
-      getUserEmail(token);
-    }
-  }, [history]);
+  // useEffect(() => {
+  //  const token = Token.getToken();
+  //  if (token) {
+  //    getUserEmail(token);
+  //  }
+  // }, [history]);
 
   function handleRegistration(formData) {
     auth
@@ -105,6 +105,9 @@ function App({ history }) {
         Token.removeToken();
         setLoggedIn(false);
         setUserEmail('');
+      })
+      .catch ((err) => {
+        console.dir(err);
       })
   };
 
@@ -162,8 +165,10 @@ function App({ history }) {
   };
 
   const handleUpdateUser = (userData) => {
+    console.dir(userData)
     api.patchUserInfo(userData)
       .then((res) => {
+        console.dir(res);
         setCurrentUser(res);
         closeAllPopups();
       })

@@ -1,7 +1,8 @@
 const allowedCors = [
-  'https://mestopreleks.nomoredomains.work/',
-  'https://mestopreleks.nomoredomains.work/',
-  'localhost:3000',
+  'https://mestopreleks.nomoredomains.work',
+  'https://mestopreleks.nomoredomains.work',
+  'http://localhost:3000',
+  'https://localhost:3000',
 ];
 
 module.exports = (req, res, next) => {

@@ -8,9 +8,12 @@ class Api {
     if (res.ok) {
       return res.json();
     }
-    return Promise.reject(`Ошибка: ${res.status}`);
+    return res.json().then((err) => {
+      err.statusCode = res.status;
+      return Promise.reject(err);
+    })
   }
-
+    
   getUserInfo() {
     return fetch(`${this._baseUrl}/users/me`, {
       credentials: 'include',

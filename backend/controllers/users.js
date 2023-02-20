@@ -81,6 +81,7 @@ const createUser = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
+  console.dir(req.body);
   Users.findByIdAndUpdate(
     req.user._id,
     { name, about },
@@ -90,7 +91,10 @@ const updateUser = (req, res, next) => {
       upsert: false,
     },
   ).orFail(new NotFoundErr(MSG_NOT_FOUND_USER))
-    .then((user) => res.send(user))
+    .then((user) => {
+      console.dir(user);
+      res.send(user);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new IncorrectData(MSG_INCORRECT_DATA));
